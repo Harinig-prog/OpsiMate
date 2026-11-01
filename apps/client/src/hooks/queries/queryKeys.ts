@@ -1,3 +1,10 @@
+// The Insights scope as it goes into the alertAnalytics key; absent values are null.
+export interface AlertAnalyticsKeyScope {
+	filters: Record<string, string[]> | null;
+	search: string | null;
+	tagKey: string | null;
+}
+
 // Query keys for consistent caching across the application
 export const queryKeys = {
 	alerts: ['alerts'] as const,
@@ -8,13 +15,8 @@ export const queryKeys = {
 	// Mutation key: list polling pauses while one is pending (see useAlerts).
 	bulkAlertAction: ['bulkAlertAction'] as const,
 	// Starts with `alerts`, so invalidating queryKeys.alerts refreshes the Insights page too.
-	alertAnalytics: (
-		from: string | null,
-		timeZone: string,
-		filters: Record<string, string[]> | null,
-		search: string | null,
-		tagKey: string | null
-	) => [...queryKeys.alerts, 'analytics', from, timeZone, filters, search, tagKey] as const,
+	alertAnalytics: (from: string | null, timeZone: string, scope: AlertAnalyticsKeyScope) =>
+		[...queryKeys.alerts, 'analytics', from, timeZone, scope.filters, scope.search, scope.tagKey] as const,
 	// Shared prefix for every alert-history query; invalidations target this so a
 	// mutation can drop all per-alert histories (see useRunAction, useBulkAlertAction, ...).
 	alertHistoryAll: ['alertHistory'] as const,
